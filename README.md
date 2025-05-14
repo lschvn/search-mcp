@@ -79,6 +79,82 @@ npm test
 bun test
 ```
 
+## Making Requests (API Usage)
+
+To interact with the MCP server and use its tools, you need to follow a two-step process:
+
+1.  **Initialize a Session:** Establish a session with the server.
+2.  **Call a Tool:** Use the established session to make calls to the available tools.
+
+All interactions happen via `POST` requests to the `/mcp` endpoint of your running server (e.g., `http://localhost:3000/mcp`).
+
+### 1. Initialize a Session
+
+Send a `POST` request to the `/mcp` endpoint with a JSON-RPC "initialize" message. This request does not require an `mcp-session-id` header.
+
+**Example `curl` command:**
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-03-26",
+      "clientInfo": {
+        "name": "my-readme-client",
+        "version": "0.1.0"
+      },
+      "capabilities": {
+        "tools": {}
+      }
+    },
+    "id": "init-example-1"
+  }' \
+  http://localhost:3000/mcp
+```
+
+*   The `Accept` header is required by the server's transport.
+*   The server will respond, and in your server's console output, you will see a line like: `MCP Session initialized: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`.
+*   **Copy this Session ID.** You will need it for all subsequent tool calls within this session.
+
+### 2. Call a Tool
+
+Once you have an active Session ID, you can call any of the available tools by sending another `POST` request to the `/mcp` endpoint. This time, you **must** include the `mcp-session-id` header.
+
+**Example `curl` command (calling `search-web`):**
+
+Replace `YOUR_SESSION_ID_HERE` with the actual Session ID you obtained from the initialization step.
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "mcp-session-id: YOUR_SESSION_ID_HERE" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "search-web",
+      "arguments": {
+        "query": "What is the Model Context Protocol?",
+        "limit": 1
+      }
+    },
+    "id": "tool-call-example-1"
+  }' \
+  http://localhost:3000/mcp
+```
+
+*   `mcp-session-id`: Your active session ID.
+*   `method`: Should be `"tools/call"`.
+*   `params.name`: The name of the tool to execute (e.g., `"search-web"`, `"search-github"`, `"fetch-url"`).
+*   `params.arguments`: An object containing the specific parameters required by that tool.
+
+The server will respond with the result of the tool execution in a JSON-RPC format.
+
 ## Tools API
 
 All tools are exposed via the Model Context Protocol.

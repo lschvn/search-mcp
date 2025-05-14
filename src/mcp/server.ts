@@ -1,14 +1,8 @@
-// src/mcp/server.ts
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-// Removed direct service imports as they are now in individual handlers
-
-// Import handlers from their new location
 import { searchWebHandler } from './tools/search-web.handler.js';
 import { searchGithubHandler } from './tools/search-github.handler.js';
 import { fetchUrlHandler } from './tools/fetch-url.handler.js';
-
-// Removed old handler definitions that were here
 
 export function buildServer() {
   const server = new McpServer({
