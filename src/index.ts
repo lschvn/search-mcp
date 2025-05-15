@@ -1,6 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
+import cors from 'cors'
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -12,7 +13,9 @@ import { searchGithubHandler } from './mcp/tools/search-github.handler.js';
 import { fetchUrlHandler } from './mcp/tools/fetch-url.handler.js';
 
 const app = express();
+app.use(express.static('public'))
 app.use(express.json());
+app.use(cors())
 const port = process.env.PORT || 3000;
 
 const mcpSessions: { [sessionId: string]: StreamableHTTPServerTransport } = {};
